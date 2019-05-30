@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from .models import Foodlist, Food
 from usda.client import UsdaClient
 from decouple import config
@@ -43,25 +43,12 @@ def detail(request, foodlist_id):
         form = newfoodForm()
 
     return render(request, 'foodlog/detail.html', {'foodlist': foodlist, 'form': form})
+def foodlist_delete(request, pk):    
+    foodlist = get_object_or_404(Foodlist, pk=pk)  # Get your current cat
 
-def addFood(request, foodlist_id):
-    foodlist = get_object_or_404(Foodlist, pk=foodlist_id)
-    try:
-        text = foodlist.food_set.get(pk=request.get['myFood'])
-    except (KeyError, Food.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(request, 'foodlog/detail.html', {
-            'foodlist': foodlist,
-            'error_message': "You did not type anything.",
-        })
-    else:
-        #foods_search = client.search_foods('text', 1)
-        foodlist.food_set.create(food_text=text, calories=0)
-        foodlist.food_set.save()
-        return render(request, 'foodlog/detail.html', {'foodlist': foodlist})
-def addfoodList(request):	
-    latest_foodlists = Foodlist.objects.order_by('-eat_date')[:7]
-    context = {
-        'latest_foodlists': latest_foodlists,
-    }
-    return render(request, 'foodlog/index.html', context)
+    if request.method == 'POST':         # If method is POST,
+        foodlist.delete()                     # delete the cat.
+        return redirect('/foodlog/')             # Finally, redirect to the homepage.
+
+    return render(request, 'foodlog/index.html', {'foodlist': foodlist})
+
