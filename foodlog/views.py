@@ -24,6 +24,7 @@ def users(request):
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             return redirect('/foodlog/index/')
+            #return render(request, 'foodlog/index.html', user)
         elif form2.is_valid():
             form2.save()
             username = form2.cleaned_data.get('username')
@@ -39,8 +40,8 @@ def users(request):
 def index(request):
     user = get_object_or_404(User, pk=1)#request.user.id)
     latest_foodlists = user.foodlist_set.all().order_by('-eat_date')
-    if request.method == 'GET':
-        form = newlogForm(request.GET)
+    if request.method == 'POST':
+        form = newlogForm(request.POST)
         if form.is_valid():
             q = Foodlist(eat_date=form.cleaned_data['newLog'])
             q.save()
@@ -75,7 +76,7 @@ def foodlist_delete(request, pk):
     foodlist = get_object_or_404(Foodlist, pk=pk)  # Get your current 
     if request.method == 'POST':         # If method is POST,
         foodlist.delete()                     # delete
-        return redirect('/foodlog/')             # Finally, redirect to the homepage.
+        return redirect('/foodlog/index/')             # Finally, redirect to the homepage.
 
     return render(request, 'foodlog/index.html', {'foodlist': foodlist})
 def food_delete(request, foodlist_id,food_id):
