@@ -1,0 +1,23 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'foodlog/style.css' %}">
+{% if latest_foodlists %}
+    <ul>
+    {% for foodlist in latest_foodlists %}
+        <li><a href="{% url 'foodlog:detail' foodlist.id %}">{{ foodlist.eat_date }}</a>
+        	<form action="{% url 'foodlog:foodlist_delete' foodlist.id %}" method="post">
+    				{% csrf_token %}
+    				<input type="submit" value="Delete entry">
+			</form>
+		</li>		
+        
+    {% endfor %}
+    </ul>
+    <form action="/foodlog/" method="get">
+    	{% csrf_token %}
+    	{{ form }}
+    	<input type="submit" value="Submit">
+	</form>
+{% else %}
+    <p>No logs are available.</p>
+{% endif %}

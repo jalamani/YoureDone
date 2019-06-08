@@ -1,0 +1,19 @@
+<h1>{{ foodlist.eat_date }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<ul>
+{% for food in foodlist.food_set.all %}
+    <li>{{ food.food_text}}&nbsp;{{ food.calories}}
+    		<form action="{% url 'foodlog:food_delete' foodlist.id food.id%}" method="post">
+    				{% csrf_token %}
+    				<input type="submit" value="Delete entry">
+			</form>
+	</li>
+{% endfor %}
+
+<form action="{% url 'foodlog:detail' foodlist.id %}" method="get">
+    {{ form }}
+    <input type="submit" value="Submit">
+</form>
+</ul>
