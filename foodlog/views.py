@@ -17,28 +17,41 @@ def users(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         form2 = AuthenticationForm(request.POST)
-        if form.is_valid():
+        nextForm = newlogForm()
+        if 'signup' in request.POST:
             form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
+            
+        else:
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(request, username=username, password=password)
+            #return redirect('/foodlog/index/')
+        if user is not None:
+            latest_foodlists = user.foodlist_set.all().order_by('-eat_date')
             login(request, user)
-            return redirect('/foodlog/index/')
-            #return render(request, 'foodlog/index.html', user)
-        elif form2.is_valid():
-            form2.save()
-            username = form2.cleaned_data.get('username')
-            password = form2.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            print('You got here!You got here!You got here!You got here!You got here!You got here!You got here!!')
-            return render(request, 'foodlog/index.html', user)
+            context = {
+                'form': nextForm, 'latest_foodlists': latest_foodlists
+            }
+            print(request.user.id)
+            print(request.user.id)
+            print(request.user.id)
+            print(request.user.id)
+            print(request.user.id)
+            print(request.user.id)
+            print(request.user.id)
+            print(request.user.id)
+            print(request.user.id)
+            print(request.user.id)
+            return render(request, 'foodlog/index.html', context)
     else:
         form = UserCreationForm()
         form2 = AuthenticationForm()
     return render(request, 'foodlog/users.html', {'form': form, 'form2':form2})
 def index(request):
-    user = get_object_or_404(User, pk=1)#request.user.id)
+    user = get_object_or_404(User, pk=request.user.id)
     latest_foodlists = user.foodlist_set.all().order_by('-eat_date')
     if request.method == 'POST':
         form = newlogForm(request.POST)
@@ -56,9 +69,9 @@ def index(request):
 def detail(request, foodlist_id):
     foodlist = get_object_or_404(Foodlist, pk=foodlist_id)
     # if this is a POST request we need to process the form data
-    if request.method == 'GET':
+    if request.method == 'POST':
         # create a form instance and populate it with data from the request:
-        form = newfoodForm(request.GET)
+        form = newfoodForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
@@ -70,7 +83,6 @@ def detail(request, foodlist_id):
     # if a GET (or any other method) we'll create a blank form
     else:
         form = newfoodForm()
-
     return render(request, 'foodlog/detail.html', {'foodlist': foodlist, 'form': form})
 def foodlist_delete(request, pk):    
     foodlist = get_object_or_404(Foodlist, pk=pk)  # Get your current 
