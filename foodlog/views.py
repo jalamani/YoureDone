@@ -22,7 +22,7 @@ def users(request):
             form.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
+            user = authenticate(request, username=username, password=raw_password)
             
         else:
             username = request.POST['username']
@@ -35,16 +35,6 @@ def users(request):
             context = {
                 'form': nextForm, 'latest_foodlists': latest_foodlists
             }
-            print(request.user.id)
-            print(request.user.id)
-            print(request.user.id)
-            print(request.user.id)
-            print(request.user.id)
-            print(request.user.id)
-            print(request.user.id)
-            print(request.user.id)
-            print(request.user.id)
-            print(request.user.id)
             return render(request, 'foodlog/index.html', context)
     else:
         form = UserCreationForm()
@@ -56,7 +46,7 @@ def index(request):
     if request.method == 'POST':
         form = newlogForm(request.POST)
         if form.is_valid():
-            q = Foodlist(eat_date=form.cleaned_data['newLog'])
+            q = Foodlist(eat_date=form.cleaned_data['newLog'], user = user)
             q.save()
     else:
         form = newlogForm()
