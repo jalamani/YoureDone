@@ -1,6 +1,7 @@
 {% load static %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'foodlog/style.css' %}">
+<h1>here are your foodlogs. you can create new logs at the bottom</h1>
 {% if latest_foodlists %}
     <ul>
     {% for foodlist in latest_foodlists %}
@@ -15,7 +16,7 @@
     </ul>
     
 {% else %}
-    <p>No logs are available.</p>
+    <p>No logs are available :(</p>
 {% endif %}
 <form action="/foodlog/index/" method="post">
     	{% csrf_token %}

@@ -1,4 +1,4 @@
-<h1>{{ foodlist.eat_date }}</h1>
+<h1>here are the foods you ate on {{ foodlist.eat_date }}</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
@@ -15,6 +15,16 @@
 <form action="{% url 'foodlog:detail' foodlist.id %}" method="post">
 	{% csrf_token %}
     {{ form }}
-    <input type="submit" value="Submit">
+    <input type="submit" name="insert" value="Submit">
 </form>
+<form action="{% url 'foodlog:detail' foodlist.id %}" method="post">
+	{% csrf_token %}
+    {{ form2 }}
+    <input type="submit" name="search" value="Submit">
+</form>
+{% for x, y in foodResults %}
+    <li>{{ x }}, {{ y }}
+    		
+	</li>
+{% endfor %}
 </ul>
