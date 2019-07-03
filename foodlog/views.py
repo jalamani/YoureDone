@@ -13,6 +13,7 @@ import requests
 API_KEY = config('API_KEY')
 client = UsdaClient(API_KEY)
 
+#Log in/Create A User
 def users(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -40,14 +41,29 @@ def users(request):
         form = UserCreationForm()
         form2 = AuthenticationForm()
     return render(request, 'foodlog/users.html', {'form': form, 'form2':form2})
+
+#User's list of logs
 def index(request):
     user = get_object_or_404(User, pk=request.user.id)
     latest_foodlists = user.foodlist_set.all().order_by('-eat_date')
+    totalCalories = []
+    for foodlist in latest_foodlists:
+        total = 0
+        for foods in foodlist.food_set.all():
+            total+=foods.calories
+        totalCalories.append(total)
+
+    latest_foodlists = zip(latest_foodlists, totalCalories)
     if request.method == 'POST':
-        form = newlogForm(request.POST)
-        if form.is_valid():
-            q = Foodlist(eat_date=form.cleaned_data['newLog'], user = user)
+        if 'add' in request.POST:
+            form = newlogForm
+            q = Foodlist(user = user)
             q.save()
+        else:
+            form = newlogForm(request.POST)
+            if form.is_valid():
+                q = Foodlist(eat_date=form.cleaned_data['newLog'], user = user)
+                q.save()
     else:
         form = newlogForm()
 
@@ -56,11 +72,14 @@ def index(request):
     }
 
     return render(request, 'foodlog/index.html', context)
+
+#List of log's food
 def detail(request, foodlist_id):
     foodlist = get_object_or_404(Foodlist, pk=foodlist_id)
     foods = []
     foodNames = []
     foodCalories = []
+    foodUnits = []
     foodResults = []
     if request.method == 'POST':
         if 'insert' in request.POST:
@@ -81,20 +100,22 @@ def detail(request, foodlist_id):
                     except:
                         break
                 for x in range(len(foods)):
-                    foodNames.append(foods[x].name)
-                    print(foods[x].name)
                     report = client.get_food_report(foods[x].id)
                     for nutrient in report.nutrients:
                         if nutrient.name == 'Energy':
-                            foodCalories.append(nutrient.value)
-                            print(nutrient.value)
+                            foodNames.append(foods[x].name)
+                            foodCalories.append(str(nutrient.value) + " " + nutrient.unit)
                             break
                             
                 foodResults = zip(foodNames,foodCalories)
+        elif 'add' in request.POST:
+            print(5)
     else:
         form = newfoodForm()
         form2 = searchdatabaseForm()
     return render(request, 'foodlog/detail.html', {'foodlist': foodlist, 'form': form, 'form2': form2, 'foodResults': foodResults})
+
+#Delete a foodlist
 def foodlist_delete(request, pk):    
     foodlist = get_object_or_404(Foodlist, pk=pk)
     if request.method == 'POST':
@@ -102,6 +123,8 @@ def foodlist_delete(request, pk):
         return redirect('/foodlog/index/')             
 
     return render(request, 'foodlog/index.html', {'foodlist': foodlist})
+
+#Delete a food
 def food_delete(request, foodlist_id,food_id):
     foodlist = get_object_or_404(Foodlist, pk=foodlist_id)    
     food = get_object_or_404(Food, pk=food_id)  
