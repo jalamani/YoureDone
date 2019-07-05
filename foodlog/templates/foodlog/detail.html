@@ -5,7 +5,7 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-
+{% if foodlist.food_set.all %}
 
 <table>
 
@@ -28,7 +28,11 @@
 {% endfor %}
 
 </table>
+{% else %}
 
+<p>This log has no food in it :(</p>
+
+{% endif %}
 
 <form action="{% url 'foodlog:detail' foodlist.id %}" method="post">
 	{% csrf_token %}
@@ -54,12 +58,17 @@
 	<th>Calories per 100 grams</th>
 	<th></th>
 
-{% for x, y in foodResults %}
+{% for foods in foodResults %}
     <tr>
 
-    <td>{{ x }}</td>
-    <td>{{ y }}</td>	
-    <td> <input type="submit" name="add" value="+" method = "post"> </td>
+    <td>{{ foods.food_text }}</td>
+    <td>{{ foods.calories }}</td>	
+    <td> 
+    	<form action="{% url 'foodlog:detail' foodlist.id %}" method="post">
+    		{% csrf_token %}
+    		<input type="submit" name="{{foods.food_text}}|{{foods.calories}}" value="+"> 
+    	</form>
+    </td>
     		
 	</tr>>
 {% endfor %}

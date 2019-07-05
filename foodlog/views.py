@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import Foodlist, Food
+from .models import Foodlist, Food, SearchedFood
 from usda.client import UsdaClient
 from decouple import config
 from .forms import newfoodForm,newlogForm,searchdatabaseForm
@@ -77,10 +77,7 @@ def index(request):
 def detail(request, foodlist_id):
     foodlist = get_object_or_404(Foodlist, pk=foodlist_id)
     foods = []
-    foodNames = []
-    foodCalories = []
-    foodUnits = []
-    foodResults = []
+    foodResults = []    
     if request.method == 'POST':
         if 'insert' in request.POST:
             form = newfoodForm(request.POST)
@@ -88,6 +85,7 @@ def detail(request, foodlist_id):
             if form.is_valid():
                 foodlist.food_set.create(food_text=form.cleaned_data['newFood'], calories=form.cleaned_data['newCalories'])
                 foodlist.save()
+                print(request.POST)
         elif 'search' in request.POST:
             form = newfoodForm()
             form2 = searchdatabaseForm(request.POST)
@@ -103,13 +101,20 @@ def detail(request, foodlist_id):
                     report = client.get_food_report(foods[x].id)
                     for nutrient in report.nutrients:
                         if nutrient.name == 'Energy':
-                            foodNames.append(foods[x].name)
-                            foodCalories.append(str(nutrient.value) + " " + nutrient.unit)
+                            foodResults.append(SearchedFood(food_text=foods[x].name, calories=nutrient.value))
                             break
                             
-                foodResults = zip(foodNames,foodCalories)
-        elif 'add' in request.POST:
-            print(5)
+        elif '+' in request.POST.values():            
+            form = newfoodForm()
+            form2 = searchdatabaseForm()
+            pair = [key for key in request.POST.keys()][1].split("|")
+            print(pair)
+            foodlist.food_set.create(food_text=pair[0], calories=int(float(pair[1])))
+            foodlist.save()
+        else:
+            form = newfoodForm()
+            form2 = searchdatabaseForm()
+            print(request.POST)
     else:
         form = newfoodForm()
         form2 = searchdatabaseForm()
