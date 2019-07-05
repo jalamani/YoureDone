@@ -1,20 +1,78 @@
-<h1>{{ foodlist.eat_date }}</h1>
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'foodlog/style.css' %}">
+<h1>here are the foods you ate on {{ foodlist.eat_date }}</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<ul>
+{% if foodlist.food_set.all %}
+
+<table>
+
+	<th>Food</th>
+	<th>Calories</th>
+	<th></th>
+
 {% for food in foodlist.food_set.all %}
-    <li>{{ food.food_text}}&nbsp;{{ food.calories}}
+    <tr>
+
+    	<td>{{ food.food_text}}</td>         
+    	<td>{{ food.calories}}</td>   
+    	<td>
     		<form action="{% url 'foodlog:food_delete' foodlist.id food.id%}" method="post">
     				{% csrf_token %}
     				<input type="submit" value="Delete entry">
 			</form>
-	</li>
+		</td>
+	</tr>>
 {% endfor %}
+
+</table>
+{% else %}
+
+<p>This log has no food in it :(</p>
+
+{% endif %}
 
 <form action="{% url 'foodlog:detail' foodlist.id %}" method="post">
 	{% csrf_token %}
     {{ form }}
-    <input type="submit" value="Submit">
+    <input type="submit" name="insert" value="Submit">
 </form>
-</ul>
+
+
+
+
+
+<form action="{% url 'foodlog:detail' foodlist.id %}" method="post">
+	{% csrf_token %}
+    {{ form2 }}
+    <input type="submit" name="search" value="Search">
+</form>
+
+
+{% if foodResults %}
+<table>
+
+	<th>Food</th>
+	<th>Calories per 100 grams</th>
+	<th></th>
+
+{% for foods in foodResults %}
+    <tr>
+
+    <td>{{ foods.food_text }}</td>
+    <td>{{ foods.calories }}</td>	
+    <td> 
+    	<form action="{% url 'foodlog:detail' foodlist.id %}" method="post">
+    		{% csrf_token %}
+    		<input type="submit" name="{{foods.food_text}}|{{foods.calories}}" value="+"> 
+    	</form>
+    </td>
+    		
+	</tr>>
+{% endfor %}
+
+</table>
+
+{% endif %}

@@ -1,22 +1,46 @@
 {% load static %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'foodlog/style.css' %}">
+<h1>here are your foodlogs. you can create new logs at the bottom</h1>
 {% if latest_foodlists %}
-    <ul>
-    {% for foodlist in latest_foodlists %}
-        <li><a href="{% url 'foodlog:detail' foodlist.id %}">{{ foodlist.eat_date }}</a>
+    
+
+    <table>
+
+    	<th>Date</th>
+    	<th>Total Calories</th>
+    	<th></th>
+
+    
+    {% for foodlist, totalCalories in latest_foodlists %}
+	<tr>
+        <td><a href="{% url 'foodlog:detail' foodlist.id %}">{{ foodlist.eat_date }}</a></td>
+
+        <td>{{ totalCalories }}</td>
+
+        <td>
         	<form action="{% url 'foodlog:foodlist_delete' foodlist.id %}" method="post">
     				{% csrf_token %}
     				<input type="submit" value="Delete entry">
-			</form>
-		</li>		
-        
+			</form>		
+		</td>
+     </tr>   
     {% endfor %}
-    </ul>
+	
+
+    </table>
     
 {% else %}
-    <p>No logs are available.</p>
+    <p>No logs are available :(</p>
+
 {% endif %}
+
+<form action="/foodlog/index/" method="post">
+    		{% csrf_token %}
+    		<input type = "submit" name = "add" value = "Add">
+    </form>
+
+
 <form action="/foodlog/index/" method="post">
     	{% csrf_token %}
     	{{ form }}

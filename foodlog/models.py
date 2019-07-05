@@ -16,4 +16,7 @@ class Foodlist(models.Model):
         return str(self.eat_date)
     def was_published_recently(self):
         return self.eat_date >= timezone.now() - datetime.timedelta(days=1)
+class SearchedFood(models.Model):
+    food_text = models.CharField(max_length=20,default='NA')
+    calories = models.IntegerField(default=0)
 #class Users(models.User)
