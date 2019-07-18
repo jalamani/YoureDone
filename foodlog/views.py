@@ -32,6 +32,15 @@ def users(request):
             #return redirect('/foodlog/index/')
         if user is not None:
             latest_foodlists = user.foodlist_set.all().order_by('-eat_date')
+            totalCalories = []
+            
+            for foodlist in latest_foodlists:
+                total = 0
+                for foods in foodlist.food_set.all():
+                    total+=foods.calories
+                totalCalories.append(total)
+
+            latest_foodlists = zip(latest_foodlists, totalCalories)
             login(request, user)
             context = {
                 'form': nextForm, 'latest_foodlists': latest_foodlists
@@ -47,6 +56,7 @@ def index(request):
     user = get_object_or_404(User, pk=request.user.id)
     latest_foodlists = user.foodlist_set.all().order_by('-eat_date')
     totalCalories = []
+
     for foodlist in latest_foodlists:
         total = 0
         for foods in foodlist.food_set.all():
