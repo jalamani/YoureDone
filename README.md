@@ -14,7 +14,15 @@ YoureDone requires the Django framework and an USDA Food Composition Database AP
 
 - Open bash and cd to the YoureDone directory.
 - Run
+
 	python manage.py runserver
+
+## Testing YoureDone
+
+- Open bash and cd to the YoureDone directory.
+- Run
+
+	python manage.py test foodlog
 
 ## Contribute
 
