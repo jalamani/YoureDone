@@ -83,7 +83,7 @@ def index(request):
 
     return render(request, 'foodlog/index.html', context)
 
-#List of log's food
+#List of a log's food. Contains search food feature.
 def detail(request, foodlist_id):
     foodlist = get_object_or_404(Foodlist, pk=foodlist_id)
     foods = []
