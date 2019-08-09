@@ -96,6 +96,9 @@ def detail(request, foodlist_id):
                 foodlist.food_set.create(food_text=form.cleaned_data['newFood'], calories=form.cleaned_data['newCalories'])
                 foodlist.save()
                 print(request.POST)
+
+#Search field     
+
         elif 'search' in request.POST:
             form = newfoodForm()
             form2 = searchdatabaseForm(request.POST)
@@ -110,10 +113,19 @@ def detail(request, foodlist_id):
                 for x in range(len(foods)):
                     report = client.get_food_report(foods[x].id)
                     for nutrient in report.nutrients:
+                        calories = 0
                         if nutrient.name == 'Energy':
                             foodResults.append(SearchedFood(food_text=foods[x].name, calories=nutrient.value))
                             break
-                            
+                        elif nutrient.name == 'Protein':
+                            calories += nutrient.value*4
+                        elif nutrient.name == 'Total lipid (fat)':
+                            calories += nutrient.value*9
+                        elif nutrient.name == 'Carbohydrate, by difference':
+                            calories += nutrient.value*4
+                    foodResults.append(SearchedFood(food_text=foods[x].name, calories = calories))
+#Add searched food button
+
         elif '+' in request.POST.values():            
             form = newfoodForm()
             form2 = searchdatabaseForm()
